@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import javax.swing.*;
 
 public class Game extends JPanel implements ActionListener, KeyListener {
+    private StartScreen startScreenPanel;
     int width, height, directionX, directionY;
     int tileSize = 25;
     Tile snakeHead, food;
@@ -28,6 +29,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         setBackground(Color.green.darker().darker());
         addKeyListener(this);
         setFocusable(true);
+        startScreenPanel = new StartScreen(this);
+        add(startScreenPanel);
         snakeHead = new Tile(10,10);
         snakeBody = new ArrayList<Tile>();
         food = new Tile(10, 10);
@@ -41,6 +44,11 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         gameLoop = new Timer(100, this);
         gameLoop.start();
     }
+    public void startGame() {
+        gameLoop.start(); // Start the game timer
+        requestFocus(); // Request focus for keyboard input
+        startScreenPanel.setVisible(false); // Hide start screen panel
+    }
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -49,18 +57,22 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     }
 
     public void draw(Graphics g) {
-//        g.setColor(Color.black);
-//        for(int i = 0; i < width /tileSize; i++) {
-//            g.drawLine(i*tileSize, 0, i*tileSize, height);
-//            g.drawLine(0, i*tileSize, width, i*tileSize);
-//        }
+        //map
+        g.setColor(Color.orange.darker().darker().darker());
+        for(int k=0; k < this.width/tileSize; k++) {
+            g.drawLine(k*tileSize, 0, k*tileSize, 500);
+            g.drawLine(0, k*tileSize, 500, k*tileSize);
+        }
 
+        //food
         g.setColor(Color.red);
         g.fillRect(food.x*tileSize, food.y*tileSize, tileSize, tileSize);
 
+        //head
         g.setColor(Color.black);
         g.fillRect(snakeHead.x*tileSize, snakeHead.y*tileSize, tileSize, tileSize);
 
+        //body
         for (int i = 0; i < snakeBody.size(); i++) {
             Tile snakePart = snakeBody.get(i);
             g.fillRect(snakePart.x*tileSize, snakePart.y*tileSize, tileSize, tileSize);
@@ -70,8 +82,12 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     public void move() {
         if (isCollision(snakeHead, food)) {
             snakeBody.add(new Tile(food.x, food.y));
-            food.x = (int) (Math.random() * width/tileSize);
-            food.y = (int) (Math.random() * height/tileSize);
+            do{
+                food.x = (int) (Math.random() * width/tileSize);
+                food.y = (int) (Math.random() * height/tileSize);
+                System.out.println(food.x+tileSize + " " + food.y+tileSize);
+            }while (food.x*tileSize < 25 || food.x*tileSize > 475 ||food.y*tileSize < 25 || food.y*tileSize > 475);
+
         }
 
         for (int i = snakeBody.size()-1; i >= 0; i--) {
@@ -109,6 +125,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         repaint();
         if (gameOver) {
             gameLoop.stop();
+            System.exit(0);
         }
     }
 
@@ -137,3 +154,4 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     @Override
     public void keyReleased(KeyEvent e) {}
 }
+
